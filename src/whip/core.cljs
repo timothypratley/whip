@@ -10,19 +10,19 @@
   (reagent/atom
     {:projects
      {"Build Whip"
-      {:tasks
-       {1 {:title "Design a data model for projects and tasks"
+      {:stories
+       {1 {:title "Design a data model for projects and stories"
            :status "done"
            :order 1}
-        2 {:title "Create a task title entry form"
+        2 {:title "Create a story title entry form"
            :order 2}
-        3 {:title "Implement a way to finish tasks"
+        3 {:title "Implement a way to finish stories"
            :order 3}
         4 {:title "Build a todo list"
            :order 4}
-        5 {:title "Draw cards to represent tasks"
+        5 {:title "Draw cards to represent stories"
            :order 5}
-        6 {:title "Create lanes to represent task status"
+        6 {:title "Create lanes to represent story status"
            :order 6}}}}}))
 
 (defn unique []
@@ -34,20 +34,20 @@
 (defn max-order []
   ;; TODO: project specific, and handle server side
   (inc (apply max 0
-              (map :order (vals (get-in @app-state [:projects "Build Whip" :tasks]))))))
+              (map :order (vals (get-in @app-state [:projects "Build Whip" :stories]))))))
 
-(defn add-task [title]
-  (swap! app-state update-in [:projects "Build Whip" :tasks]
+(defn add-story [title]
+  (swap! app-state update-in [:projects "Build Whip" :stories]
          assoc (unique) {:title title
                          :order (max-order)}))
 
-(defn task-done [id]
-  (swap! app-state assoc-in [:projects "Build Whip" :tasks id :status]
+(defn story-done [id]
+  (swap! app-state assoc-in [:projects "Build Whip" :stories id :status]
          "done"))
 
 ;; exercise -- use local state and buttons
 
-(defn task-card [[id {:keys [title status]}]]
+(defn story-card [[id {:keys [title status]}]]
   [:li.card {:key id}
    (if (= status "done")
      [:del title]
@@ -57,14 +57,14 @@
       [:button
        {:on-click
         (fn done-click [e]
-          (task-done id))}
+          (story-done id))}
        "done"]])])
 
 (defn project-board []
   [:div.board
    [:ul
-    (for [task (sort-by :order (get-in @app-state [:projects "Build Whip" :tasks]))]
-      [task-card task])]])
+    (for [story (sort-by :order (get-in @app-state [:projects "Build Whip" :stories]))]
+      [story-card story])]])
 
 (defn whip-main []
   [:div.content
@@ -73,15 +73,15 @@
     [:h2 "Build a project management tool"]
     [:form
      {:on-submit
-      (fn task-submit [e]
+      (fn add-story-submit [e]
         (.preventDefault e)
-        (add-task (forms/getValueByName (.-target e) "task-title")))}
+        (add-story (forms/getValueByName (.-target e) "story-title")))}
      [:input
       {:type "text"
-       :name "task-title"}]
+       :name "story-title"}]
      [:input
       {:type "submit"
-       :value "Add task"}]]
+       :value "Add story"}]]
     [project-board]]
    [:div.footer "Some footer"]])
 
