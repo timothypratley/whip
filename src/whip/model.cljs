@@ -10,26 +10,34 @@
     {:view [:project-list]
      :projects
      {"aaa"
-      {:title "Build Whip"
-       :order 1}}
+      {:title "Build a project management tool"
+       :statuses ["planned" "in progress" "done"]}
+      "bbb"
+      {:title "Examples"
+       :statuses ["planned" "pending"]}}
      :stories
      {1 {:title "Design a data model for projects and stories"
-         :project-id "aaa"
          :status "done"
+         :project-id "aaa"
          :order 1}
       2 {:title "Create a story title entry form"
+         :status "in progress"
          :project-id "aaa"
          :order 2}
       3 {:title "Implement a way to finish stories"
+         :status "in progress"
          :project-id "aaa"
          :order 3}
       4 {:title "Build a todo list"
+         :status "planned"
          :project-id "aaa"
          :order 4}
       5 {:title "Draw cards to represent stories"
+         :status "planned"
          :project-id "aaa"
          :order 5}
       6 {:title "Create lanes to represent story status"
+         :status "planned"
          :project-id "aaa"
          :order 6}}}))
 
@@ -56,8 +64,8 @@
          assoc (unique) {:title title
                          :order (inc (max-order app-state project-id))}))
 
-(defn story-done! [app-state story-id]
-  (swap! app-state assoc-in [:stories story-id :status] "done"))
+(defn set-story-status! [app-state story-id status]
+  (swap! app-state assoc-in [:stories story-id :status] status))
 
 (defn view-project! [app-state project-id]
   (swap! app-state assoc :view [:project project-id]))

@@ -1,1 +1,52 @@
+.nav-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
 
+.nav-list li {
+    float: left;
+}
+
+.nav-list li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.nav-list li a:hover {
+    background-color: #111;
+}
+
+.active {
+    background-color: #4CAF50;
+}
+
+.board {
+    overflow: auto;
+    background-color: #eeffee;
+}
+
+.column {
+    list-style-type: none;
+    margin: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    background-color: #eeeeee;
+    border-radius: 5px;
+    width: 280px;
+    float: left;
+}
+
+.board li {
+    background-color: #ffffff;
+    padding: 5px;
+    border-radius: 5px;
+    border-bottom: 2px solid #ccc;
+    border-right: 2px solid #ccc;
+}
