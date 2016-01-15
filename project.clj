@@ -29,7 +29,7 @@
    {"dev"
     {:source-paths ["src"]
      :figwheel {}
-     :compiler {:main whip.core
+     :compiler {:main whip.main
                 :asset-path "js/compiled/out"
                 :output-to "resources/public/js/compiled/whip.js"
                 :output-dir "resources/public/js/compiled/out"
@@ -38,7 +38,7 @@
     "devcards"
     {:source-paths ["src"]
      :figwheel {:devcards true}
-     :compiler {:main whip.core
+     :compiler {:main whip.main
                 :asset-path "js/compiled/devcards"
                 :output-to "resources/public/js/compiled/devcards.js"
                 :output-dir "resources/public/js/compiled/devcards"
@@ -49,7 +49,7 @@
     "min"
     {:source-paths ["src"]
      :compiler {:output-to "resources/public/js/compiled/whip.js"
-                :main whip.core
+                :main whip.main
                 :optimizations :advanced
                 :source-map "resources/public/js/compiled/whip.js.map"
                 :output-dir "resources/public/js/compiled/min"

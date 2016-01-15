@@ -11,33 +11,33 @@
      :projects
      {"aaa"
       {:title "Build a project management tool"
-       :statuses ["planned" "in progress" "done"]}
+       :statuses ["Planned" "In Progress" "Done"]}
       "bbb"
       {:title "Examples"
-       :statuses ["planned" "pending"]}}
+       :statuses ["Planned" "Pending"]}}
      :stories
      {1 {:title "Design a data model for projects and stories"
-         :status "done"
+         :status "Done"
          :project-id "aaa"
          :order 1}
       2 {:title "Create a story title entry form"
-         :status "in progress"
+         :status "In Progress"
          :project-id "aaa"
          :order 2}
       3 {:title "Implement a way to finish stories"
-         :status "in progress"
+         :status "In Progress"
          :project-id "aaa"
          :order 3}
       4 {:title "Build a todo list"
-         :status "planned"
+         :status "Planned"
          :project-id "aaa"
          :order 4}
       5 {:title "Draw cards to represent stories"
-         :status "planned"
+         :status "Planned"
          :project-id "aaa"
          :order 5}
       6 {:title "Create lanes to represent story status"
-         :status "planned"
+         :status "Planned"
          :project-id "aaa"
          :order 6}}}))
 

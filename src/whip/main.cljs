@@ -1,6 +1,6 @@
-(ns ^:figwheel-always whip.core
+(ns ^:figwheel-always whip.main
   (:require
-    [whip.aaa-init]
+    [whip.a-init]
     [whip.view :as view]
     [whip.model :as model]
     [reagent.core :as reagent]

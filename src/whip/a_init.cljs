@@ -1,3 +1,3 @@
-(ns whip.aaa-init)
+(ns whip.a-init)
 
 (enable-console-print!)

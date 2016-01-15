@@ -76,14 +76,15 @@
 (defn story-card [app-state story-id {:keys [title status]}]
   [:li.card
    {:draggable "true"
-    :on-drag-start (fn card-drag-start [e]
-                     (.setData (.-dataTransfer e) "text/plain" story-id)
-                     (set! (.. e -dataTransfer -dropEffect) "move"))}
+    :on-drag-start
+    (fn card-drag-start [e]
+      (.setData (.-dataTransfer e) "text/plain" story-id)
+      (set! (.. e -dataTransfer -dropEffect) "move"))}
    [:a
-    {;; TODO: :href (str "#/story/" story-id)
-     ;; TODO: pass type and id instead of path
-     :on-click
-     (fn []
+    ;; TODO: :href (str "#/story/" story-id)
+    ;; TODO: pass type and id instead of path
+    {:on-click
+     (fn story-click [e]
        (swap! app-state assoc :view [:story-details story-id]))}
     (if (= status "done")
       [:del title]
@@ -95,11 +96,10 @@
          (fn done-click [e]
            (model/set-story-status! app-state story-id "done"))}
         "done"]])]
-   [:a
-    {:href ""}
-    [:img
-     {:src "img/logo.png"
-      :style {:height 20}}]]])
+   [:div.members
+    [:div.member
+     [:img
+      {:src "http://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50?s=20"}]]]])
 
 (defcard-rg done-story-card-example
   [story-card example-app-state 1 (get-in @example-app-state [:stories 1])])
@@ -131,18 +131,20 @@
 
 (defn project-board [app-state project-id]
   [:div.board
-   [:h2 (get-in @app-state [:projects project-id :title])]
+   [:h1 (get-in @app-state [:projects project-id :title])]
    (doall
      (for [status (get-in @app-state [:projects project-id :statuses])]
        ^{:key status}
        [:ul.column
-        {:on-drop (fn drop-on-column [e]
-                    (.preventDefault e)
-                    (let [story-id (int (.getData (.-dataTransfer e) "text"))]
-                      (model/set-story-status! app-state story-id status)))
-         :on-drag-over (fn drag-over-column [e]
-                         (.preventDefault e)
-                         (set! (.. e -dataTransfer -dropEffect) "move"))}
+        {:on-drop
+         (fn drop-on-column [e]
+           (.preventDefault e)
+           (let [story-id (int (.getData (.-dataTransfer e) "text"))]
+             (model/set-story-status! app-state story-id status)))
+         :on-drag-over
+         (fn drag-over-column [e]
+           (.preventDefault e)
+           (set! (.. e -dataTransfer -dropEffect) "move"))}
         [:h3 status]
         (doall
           (for [[story-id story] (sort-by :order (get-in @app-state [:stories]))
@@ -231,8 +233,7 @@
     [:li
      [:a
       [:img
-       {:src "img/logo.png"
-        :style {:height 35}}]]]
+       {:src "img/logo.png"}]]]
     [:li
      [:a
       {:href "#/"}
