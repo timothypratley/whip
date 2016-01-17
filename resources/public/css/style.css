@@ -1,8 +1,29 @@
+.main {
+}
+
+.projects {
+    padding-left: 10px;
+}
+
+.project {
+    list-style-type: none;
+    overflow: auto;
+    background-color: #f8f8f8;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    border-bottom: 2px solid #ccc;
+    border-right: 2px solid #ccc;
+}
+
 .board {
     overflow: auto;
     background-color: #7cafc2;
-    height: 100%;
     padding: 20px;
+}
+
+.board h3 {
+    padding-left: 10px;
 }
 
 .column {
@@ -17,7 +38,8 @@
     float: left;
 }
 
-.board li {
+.story {
+    overflow: auto;
     background-color: #f8f8f8;
     padding: 10px;
     margin-bottom: 5px;
@@ -26,8 +48,8 @@
     border-right: 2px solid #ccc;
 }
 
-.board h3 {
-    padding-left: 10px;
+.story:hover {
+    background-color: white;
 }
 
 .members {
@@ -36,6 +58,8 @@
 
 .member img {
     border-radius: 3px;
+    margin-left: 3px;
+    margin-top: 5px;
 }
 
 .nav-list {
@@ -43,7 +67,7 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #333;
+    background-color: #383838;
 }
 
 .nav-list li {
