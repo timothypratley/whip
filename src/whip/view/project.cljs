@@ -1,23 +1,19 @@
 (ns whip.view.project
   (:require
-    [clojure.string :as string]
     [devcards.core :refer-macros [defcard-rg deftest]]
-    [goog.crypt :as crypt]
     [goog.dom.forms :as forms]
     [reagent.core :as reagent]
-    [whip.model :as model])
-  (:import
-    [goog.crypt Md5]))
+    [whip.communication :as communication]
+    [whip.model :as model]))
 
-(defn md5-hash [s]
-  (let [md5 (Md5.)]
-    (.update md5 s)
-    (crypt/byteArrayToHex (.digest md5))))
+(defn gravatar-img [email]
+  (str "//www.gravatar.com/avatar/" (communication/md5-hash email) "?s=30&d=wavatar"))
 
-(defn gravatar [email]
-  (str "http://www.gravatar.com/avatar/"
-       (md5-hash (string/trim email))
-       "?s=30&d=wavatar"))
+(defn member [email details]
+  [:span.member
+   [:img
+    {:src (gravatar-img email)
+     :title details}]])
 
 ;; exercise -- use local state and buttons to compare with form handling
 (defn story-card [app-state story-id {:keys [title status members]}]
@@ -30,12 +26,13 @@
    [:a
     {:href (str "#/story/" story-id)}
     title]
-   (into
-     [:div.members]
-     (for [member members]
-       [:span.member
-        [:img
-         {:src (gravatar (get-in @app-state [:team member] member))}]]))])
+   [:div.members
+    (doall
+      (for [m members
+            :let [email (get-in @app-state [:team m] m)
+                  details (get-in @app-state [:team email :details])]]
+        ^{:key email}
+        [member email details]))]])
 
 (defcard-rg done-story-card-example
   [story-card model/app-state 1 (get-in @model/app-state [:stories 1])])
@@ -49,26 +46,91 @@
 (defcard-rg story-card-example
   [story-card-example-component])
 
-(defn add-story-form [app-state project-id status]
+(defn add-story-form [app-state project-id status adding?]
   [:form
    {:on-submit
     (fn add-story-submit [e]
       (.preventDefault e)
-      (model/add-story!
-        app-state
-        project-id
-        (forms/getValueByName (.-target e) "story-title")
-        status))}
-   [:input
-    {:type "text"
-     :name "story-title"}]
+      (model/add-story! app-state project-id status
+                        (forms/getValueByName (.-target e) "story-title"))
+      (swap! adding? not)
+      nil)}
+   [:textarea
+    {:rows 2
+     :required "required"
+     :auto-focus "autofocus"
+     :name "story-title"
+     :style {:width "96%"}}]
    [:input
     {:type "submit"
-     :value "Add story"}]])
+     :value "Add"
+     :style {:background-color "#A1B56C"}}]
+   [:button
+    {:type "button"
+     :on-click
+     (fn [e]
+       (swap! adding? not)
+       nil)}
+    "Cancel"]])
+
+(defn maybe-add-story-form [app-state project-id status]
+  (let [adding? (reagent/atom false)]
+    (fn a-maybe-add-story-form [app-state project-id status]
+      (if @adding?
+        [add-story-form app-state project-id status adding?]
+        [:button
+         {:on-click
+          (fn add-story-click [e]
+            (swap! adding? not)
+            nil)}
+         "Add a story"]))))
+
+(defn project-title-input [title]
+  (reagent/create-class
+    {:display-name "project-title"
+     :component-did-mount
+     (fn project-title-input-did-mount [this]
+       (doto (.getDOMNode this)
+         (.setSelectionRange 10000 10000)))
+     :reagent-render
+     (fn project-title-input-render [title]
+       [:input
+        {:default-value title
+         :required "required"
+         :auto-focus "autofocus"
+         :name "project-title"
+         :style {:width "95%"
+                 :font-size "2em"
+                 :padding "10px"}}])}))
+
+(defn project-title [app-state project-id]
+  (let [editing? (reagent/atom false)]
+    (fn a-project-title [app-state project-id]
+      (let [title (get-in @app-state [:projects project-id :title])]
+        (if @editing?
+          [:form
+           {:on-submit
+            (fn project-title-submit [e]
+              (.preventDefault e)
+              (model/set-project-title! app-state project-id
+                                        (forms/getValueByName (.-target e) "project-title"))
+              (swap! editing? not)
+              nil)
+            :on-blur
+            (fn [e]
+              (swap! editing? not)
+              nil)}
+           [project-title-input title]]
+          [:h1
+           {:on-click
+            (fn project-title-click [e]
+              (swap! editing? not)
+              nil)}
+           title])))))
 
 (defn project-board [app-state {:keys [project-id]}]
   [:div.board
-   [:h1 (get-in @app-state [:projects project-id :title])]
+   [project-title app-state project-id]
    (doall
      (for [status (get-in @app-state [:projects project-id :statuses])]
        ^{:key status}
@@ -84,14 +146,11 @@
            (set! (.. e -dataTransfer -dropEffect) "move"))}
         [:h3 status]
         (doall
-          (for [[story-id story] (sort-by :order (get-in @app-state [:stories]))
-                :when (= (:project-id story) project-id)
-                :when (= (:status story) status)
-                ;; TODO: ^^ before?
-                ]
+          (for [[story-id story] (model/stories-by-project-status app-state project-id status)]
             ^{:key story-id}
             [story-card app-state story-id story]))
-        [add-story-form app-state project-id status]]))])
+        [:center
+         [maybe-add-story-form app-state project-id status]]]))])
 
 (defcard-rg project-board-example
   [project-board model/app-state {:project-id "aaa"}])

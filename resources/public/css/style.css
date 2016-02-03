@@ -89,3 +89,11 @@
 .active {
     background-color: #4CAF50;
 }
+
+.tag {
+    background-color: #F7CA88;
+    font-size: 0.8em;
+    padding: 3px;
+    border-radius: 5px;
+    margin: 3px;
+}

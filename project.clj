@@ -9,7 +9,8 @@
                  [org.clojure/core.async "0.2.374"]
                  [reagent "0.5.1"]
                  [devcards "0.2.0-8"]
-                 [bidi "1.25.0"]]
+                 [bidi "1.25.0"]
+                 [cljs-http "0.1.39"]]
 
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0-1"]]

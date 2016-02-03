@@ -2,19 +2,23 @@
   (:require
     [devcards.core :refer-macros [deftest]]
     [cljs.test :refer-macros [is testing]]
-    [reagent.core :as reagent]))
+    [reagent.core :as reagent]
+    [clojure.string :as string]))
 
-;; move to data model
 (defonce app-state
   (reagent/atom
-    {:view [:project-list]
+    {:view
+     [:project-list]
+
      :team
+     ;; TODO: use email as the key!
      {"Jeremy" "jeremy@code-adept.com"
       "Jordan" "jordan@biserkov.com"
       "Justin" "justin.h.holguin@gmail.com"
       "Michael" "michael.gaare@gmail.com"
       "Nick" "nickmbailey@gmail.com"
       "Timothy" "timothypratley@gmail.com"}
+
      :projects
      {"aaa"
       {:title "Build a project management tool"
@@ -22,6 +26,7 @@
       "bbb"
       {:title "Examples"
        :statuses ["Planned" "Pending"]}}
+
      :stories
      {"1" {:title "Design a data model for projects and stories"
            :status "Done"
@@ -54,10 +59,12 @@
            :members #{"Michael"}
            :order 6}}}))
 
-(defn unique []
-  ;;(random-uuid)
-  ;; handle id assignment on the server,
-  ;; here we have 45k 3 letter codes, nice for testing.
+(defn unique
+  "For a true uuid, call (random-uuid) instead.
+  Id assignment is usually handled on the server.
+  This function creates a random base 36 number.
+  There are 45k possible 3 letter codes."
+  []
   (.toString (rand-int (js/Math.pow 36 3)) 36))
 
 (defn add-project! [app-state title]
@@ -72,7 +79,7 @@
   (testing "blah"
     (is (= 1 2))))
 
-(defn add-story! [app-state project-id title status]
+(defn add-story! [app-state project-id status title]
   (swap! app-state update :stories assoc
          (unique) {:title title
                    :status status
@@ -82,5 +89,31 @@
 (defn set-story-status! [app-state story-id status]
   (swap! app-state assoc-in [:stories story-id :status] status))
 
+(defn set-project-title! [app-state project-id title]
+  (swap! app-state assoc-in [:projects project-id :title] title))
+
 (defn navigation [event]
   (swap! app-state assoc :route (.-token event)))
+
+(defn set-member! [app-state email details]
+  (swap! app-state assoc-in [:team email :details] details))
+
+(defn set-search-term! [app-state search-term]
+  (swap! app-state assoc :search-term search-term))
+
+(defn story-search-match [search-term story]
+  (or
+    (string/blank? search-term)
+    (not= -1 (.indexOf (string/lower-case (string/join " " (vals story)))
+                       (string/lower-case search-term)))))
+
+(defn stories-by-project-status [app-state project-id status]
+  (sort-by
+    (comp :order second)
+    (let [search-term (:search-term @app-state)]
+      (filter
+        (fn filter-match [[id story]]
+          (and (= (:project-id story) project-id)
+               (= (:status story) status)
+               (story-search-match search-term story)))
+        (:stories @app-state)))))
