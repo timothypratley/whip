@@ -3,7 +3,8 @@
     [devcards.core :refer-macros [deftest]]
     [cljs.test :refer-macros [is testing]]
     [reagent.core :as reagent]
-    [clojure.string :as string]))
+    [clojure.string :as string])
+  (:require-macros [reagent.ratom :refer [reaction]]))
 
 (defonce app-state
   (reagent/atom
@@ -107,13 +108,28 @@
     (not= -1 (.indexOf (string/lower-case (string/join " " (vals story)))
                        (string/lower-case search-term)))))
 
+(defn filter-stories [stories search-term project-id status]
+  (filter
+    (fn filter-match [[id story]]
+      (and (= (:project-id story) project-id)
+           (= (:status story) status)
+           (story-search-match search-term story)))
+    stories))
+
 (defn stories-by-project-status [app-state project-id status]
   (sort-by
     (comp :order second)
-    (let [search-term (:search-term @app-state)]
-      (filter
-        (fn filter-match [[id story]]
-          (and (= (:project-id story) project-id)
-               (= (:status story) status)
-               (story-search-match search-term story)))
-        (:stories @app-state)))))
+    (filter-stories (:stories @app-state) (:search-term @app-state) project-id status)))
+
+(defn stories-by-project-status-reaction [app-state project-id status]
+  (let [search-term (reaction (:search-term @app-state))
+        all-stories (reaction (:stories @app-state))
+        a (atom nil)
+        filtered-stories
+        (reaction
+          (let [b (filter-stories @all-stories @search-term project-id status)]
+            (if (= b @a)
+              @a
+              (reset! a b))))]
+    (reaction (sort-by (comp :order second) @filtered-stories))))
+

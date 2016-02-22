@@ -2,6 +2,7 @@
   (:require
     [devcards.core :refer-macros [defcard-rg deftest]]
     [goog.dom.forms :as forms]
+    [goog.events.KeyCodes :as KeyCodes]
     [reagent.core :as reagent]
     [whip.communication :as communication]
     [whip.model :as model]))
@@ -16,7 +17,7 @@
      :title details}]])
 
 ;; exercise -- use local state and buttons to compare with form handling
-(defn story-card [app-state story-id {:keys [title status members]}]
+(defn story-card [app-state story-id {:keys [title members]}]
   [:li.story
    {:draggable "true"
     :on-drag-start
@@ -26,13 +27,13 @@
    [:a
     {:href (str "#/story/" story-id)}
     title]
-   [:div.members
-    (doall
-      (for [m members
-            :let [email (get-in @app-state [:team m] m)
-                  details (get-in @app-state [:team email :details])]]
-        ^{:key email}
-        [member email details]))]])
+   (into
+     [:div.members]
+     (for [m members
+           :let [email (get-in @app-state [:team m] m)
+                 details (get-in @app-state [:team email :details])]]
+       ^{:key email}
+       [member email details]))])
 
 (defcard-rg done-story-card-example
   [story-card model/app-state 1 (get-in @model/app-state [:stories 1])])
@@ -85,7 +86,7 @@
             nil)}
          "Add a story"]))))
 
-(defn project-title-input [title]
+(defn project-title-input [title editing?]
   (reagent/create-class
     {:display-name "project-title"
      :component-did-mount
@@ -101,7 +102,12 @@
          :name "project-title"
          :style {:width "95%"
                  :font-size "2em"
-                 :padding "10px"}}])}))
+                 :padding "20px"}
+         :on-key-down
+         (fn project-title-input-key-down [e]
+           (when (= (.-keyCode e) KeyCodes/ESC)
+             (swap! editing? not)
+             nil))}])}))
 
 (defn project-title [app-state project-id]
   (let [editing? (reagent/atom false)]
@@ -120,7 +126,7 @@
             (fn [e]
               (swap! editing? not)
               nil)}
-           [project-title-input title]]
+           [project-title-input title editing?]]
           [:h1
            {:on-click
             (fn project-title-click [e]
@@ -145,12 +151,26 @@
            (.preventDefault e)
            (set! (.. e -dataTransfer -dropEffect) "move"))}
         [:h3 status]
-        (doall
-          (for [[story-id story] (model/stories-by-project-status app-state project-id status)]
-            ^{:key story-id}
-            [story-card app-state story-id story]))
+        (let [stories (model/stories-by-project-status app-state project-id status)]
+          (doall
+            (for [[story-id story] stories]
+              ^{:key story-id}
+              [story-card app-state story-id story])))
         [:center
          [maybe-add-story-form app-state project-id status]]]))])
 
 (defcard-rg project-board-example
   [project-board model/app-state {:project-id "aaa"}])
+
+(defn project-board-reaction []
+  (let [stories (model/stories-by-project-status-reaction model/app-state "aaa" "In Progress")]
+    (fn []
+      (prn "Rendering in progress stories")
+      [:ul
+       (doall
+         (for [[story-id story] @stories]
+           ^{:key story-id}
+           [story-card model/app-state story-id story]))])))
+
+(defcard-rg project-board-reaction-example
+  [project-board-reaction])

@@ -9,6 +9,7 @@
     [whip.view.navbar :as navbar]
     [whip.view.project :as project]
     [whip.view.projects :as projects]
+    [whip.view.reactions]
     [whip.view.story :as story]
     [whip.model :as model])
   (:import

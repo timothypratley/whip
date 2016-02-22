@@ -2,10 +2,9 @@
   (:require
     [clojure.string :as string]
     [devcards.core :refer-macros [defcard-rg deftest]]
-    [whip.model :as model]
-    [reagent.core :as reagent]))
+    [whip.model :as model]))
 
-(defn line [app-state {:keys [project-id status]} k v]
+(defn line [{:keys [project-id status]} k v statuses projects]
   (case k
     :title
     [:textarea
@@ -20,13 +19,13 @@
     :status
     (into
       [:select {:default-value v}]
-      (for [s (get-in @app-state [:projects project-id :statuses])]
+      (for [s statuses]
         [:option s]))
 
     :project-id
     (into
       [:select {:default-value v}]
-      (for [[k {:keys [title]}] (:projects @app-state)]
+      (for [[k {:keys [title]}] projects]
         [:option
          {:value k}
          title]))
@@ -42,8 +41,6 @@
      {:type "number"
       :name (name k)
       :min 1
-      ;; TODO: efficient way? react to swaps. TODO: not quite right anyway
-      :max (count (filter #(and (= (:status %) status) (= (:project-id %) project-id)) (vals (:stories @app-state))))
       :default-value v}]
 
     [:input
@@ -52,11 +49,10 @@
       :default-value (str v)
       :style {:width "100%"}}]))
 
-;; TODO:
-;; good example for having a resize callback
 (defn story-details [app-state {:keys [story-id]}]
-  (let [{:keys [title] :as story} (get-in @app-state [:stories story-id])
-        in-valid (reagent/atom #{})]
+  (let [story (get-in @app-state [:stories story-id])
+        statuses (get-in @app-state [:projects (:project-id @story) :statuses])
+        projects (:projects @app-state)]
     (-> [:form
          {:on-submit
           (fn story-submit [e]
@@ -65,7 +61,7 @@
           (for [[k v] story]
             [:div
              [:label (string/capitalize (name k))]
-             [line app-state story k v]]))
+             [line story k v statuses projects]]))
         (conj [:input {:type "submit"}]))))
 
 (defcard-rg card-details-example
