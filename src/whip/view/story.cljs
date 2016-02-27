@@ -51,7 +51,7 @@
 
 (defn story-details [app-state {:keys [story-id]}]
   (let [story (get-in @app-state [:stories story-id])
-        statuses (get-in @app-state [:projects (:project-id @story) :statuses])
+        statuses (get-in @app-state [:projects (:project-id story) :statuses])
         projects (:projects @app-state)]
     (-> [:form
          {:on-submit
