@@ -1,0 +1,99 @@
+.main {
+}
+
+.projects {
+    padding-left: 10px;
+}
+
+.project {
+    list-style-type: none;
+    overflow: auto;
+    background-color: #f8f8f8;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    border-bottom: 2px solid #ccc;
+    border-right: 2px solid #ccc;
+}
+
+.board {
+    overflow: auto;
+    background-color: #7cafc2;
+    padding: 20px;
+}
+
+.board h3 {
+    padding-left: 10px;
+}
+
+.column {
+    list-style-type: none;
+    margin: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    background-color: #e8e8e8;
+    border-radius: 5px;
+    width: 280px;
+    float: left;
+}
+
+.story {
+    overflow: auto;
+    background-color: #f8f8f8;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    border-bottom: 2px solid #ccc;
+    border-right: 2px solid #ccc;
+}
+
+.story:hover {
+    background-color: white;
+}
+
+.members {
+    float: right;
+}
+
+.member img {
+    border-radius: 3px;
+    margin-left: 3px;
+    margin-top: 5px;
+}
+
+.nav-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #383838;
+}
+
+.nav-list li {
+    float: left;
+}
+
+.nav-list li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.nav-list li a:hover {
+    background-color: #181818;
+}
+
+.active {
+    background-color: #4CAF50;
+}
+
+.tag {
+    background-color: #F7CA88;
+    font-size: 0.8em;
+    padding: 3px;
+    border-radius: 5px;
+    margin: 3px;
+}
